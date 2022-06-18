@@ -1,0 +1,24 @@
+{
+	"name": "Meet Mini Games",
+	"version": "1.0.0",
+	"description": "Play famous mini games while waiting",
+	"web_accessible_resources": [
+		{
+			"resources": ["img/*.svg", "img/*.png", "fonts/*.ttf"],
+			"matches": ["https://meet.google.com/*"]
+		}
+	],
+	"content_scripts": [
+		{
+			"matches": ["*://meet.google.com/**-**-**"],
+			"js": ["js/libraries/jquery-3.6.0.min.js", "js/libraries/p5.min.js",
+				   "js/util.js", "js/translations.js", "js/templates.js",
+				   "js/cartridgeClass.js", "js/stationClass.js",
+				   "js/games/snake.js", "js/games/minesweeper.js",
+				   "js/contentScript.js"],
+			"css": ["css/pro.min.css", "css/main.css"]
+		}
+	],
+	"permissions": ["storage"],
+	"manifest_version": 3
+}
