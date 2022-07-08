@@ -26,6 +26,10 @@ class Cartridge {
 
     setup() {
         this.$gameCanvas = $("#canvas");
+        this.$gameCanvas.on("contextmenu", function(e) {
+            return false;
+        });
+        
         this.game.init(this.$gameCanvas);
 
         const $cartridge = this.getCartridge();

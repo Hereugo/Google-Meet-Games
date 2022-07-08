@@ -1,39 +1,27 @@
 class Minesweeper {
     /**
      * Minesweeper game that handles, the game logic and the display.
-     * @param {Jquery element of the canvas that would be drawn on} $gameCanvas 
-     * @param {P5js class responsible for drawing on the canvas} p
-     * @param {Header of canvas, displays flagsLeft and clock} header
-     * @param {Information on game result} popup
-     * @param {Map with all game elements} map
-     * @param {Number of flags left to place} flagsLeft
-     * @param {Number of seconds currently played} clock
-     * @param {Determines the state the game currently in} gameState
-     */
-
-    /**
-     * Method that is called to initilize values, same as constructor.
-     * @param {Initilize the canvas} $gameCanvas 
+     * @param {class} $gameCanvas Jquery element of the canvas that would be drawn on 
      */
     init($gameCanvas) {
         this.$gameCanvas = $gameCanvas;
-        this.$gameCanvas.on("contextmenu", function(e) {
-            return false;
-        });
     }
 
+
     /**
-     * 
-     * @param {Initilize } p 
+     * Setup canvas, header, popup and map.
+     * @param {class} p Get access to methods to draw on the canvas and manipulate the DOM.
+     * @returns {None}
      */
     sketch(p) {
+        console.log("Hello from sketch: ", p);
         this.p = p;
 
         this.header = new MinesweeperHeader(this.$gameCanvas);
         this.popup = new MinesweeperPopup(this.$gameCanvas);
 
         // GAME VALUES
-        this.map = new MinesweeperMap(this.p, this.$gameCanvas, 10, 14, 20);
+        this.map = new MinesweeperMap(this.p, this.$gameCanvas, 10, 14, 1);
         this.flagsLeft = 0;
         this.clock = 0;
         this.gameState = "pending"; // "pending", "win", "lose"
@@ -44,11 +32,21 @@ class Minesweeper {
         p.mousePressed = this.mousePressed.bind(this);
     }
 
+
+    /**
+     * Preload all images used in the game.
+     * @returns {None}
+     */
     preload() {
         this.map.flagIcon = this.p.loadImage(chrome.runtime.getURL("img/flag_icon.png"));
         this.map.font = this.p.loadFont(chrome.runtime.getURL("fonts/TiroDevanagariSanskrit-Regular.ttf"));
     }
 
+
+    /**
+     * P5 setup method. Called once when the canvas is created.
+     * @returns {None}
+     */
     setup() {
         this.popup.injectHTML(this.setupGameValues.bind(this));
         this.header.injectHTML();
@@ -60,9 +58,14 @@ class Minesweeper {
         this.p.noStroke();
     }
 
-    async draw() {
-        this.p.background("#FFFFFF");
 
+    /**
+     * P5 draw method. Called every frame. 
+     * @returns {None}
+     */
+    async draw() {
+        console.log(this, this.p);
+        this.p.background("#FFFFFF");
 
         this.updateClock(this.p.frameCount);
         this.header.update(this.flagsLeft, this.clock);
@@ -88,6 +91,11 @@ class Minesweeper {
         }
     }
 
+
+    /**
+     * P5 mousePressed method. Called when the mouse is pressed.
+     * @returns {None}
+     */
     mousePressed() {
         console.log(this);
         console.log(this.p.mouseButton);
@@ -160,6 +168,11 @@ class Minesweeper {
         }
     }
 
+
+    /**
+     * Setup starting game values.
+     * @returns {None}
+     */
     setupGameValues() {
         this.map.setup();
 
@@ -171,12 +184,23 @@ class Minesweeper {
         this.popup.hide();
     }
 
+
+    /**
+     * Updates the clock when the game is running.
+     * @param {int} frameCount Number of frames since the game started
+     * @returns {None}
+     */
     updateClock(frameCount) {
         if (frameCount % 60 == 0) this.clock++;
     }
 }
 
+
 class MinesweeperHeader {
+    /**
+     * Constructor for the header class. Setups up initial values.
+     * @param {class} $gameCanvas Jquery element of the canvas that would be drawn on. 
+     */
     constructor($gameCanvas) {
         this.html = `
             <div class="canvas-header">
@@ -195,13 +219,16 @@ class MinesweeperHeader {
         this.$gameCanvas = $gameCanvas;
     }
 
+
     injectHTML() {
         $(this.html).insertBefore(this.$gameCanvas);
     }
 
+
     setText(className, value) {
         $(`.${className}`).text(value);
     }
+
 
     update(flagsLeft, clock) {
         // Update header flag value
@@ -255,6 +282,7 @@ class MinesweeperPopup {
         $("#final-screen").css({"display": "none"});
     }
 }
+
 
 class MinesweeperMap {
     constructor(p, $gameCanvas, width, height, numBombs) {
