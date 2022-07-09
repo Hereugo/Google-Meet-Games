@@ -1,5 +1,5 @@
 class Cartridge {
-    constructor(id, name, description, imagePath, game) {  
+    constructor({id, name, description, imagePath, game}) {  
         this.id = id;
         this.name = name;
         this.description = description;

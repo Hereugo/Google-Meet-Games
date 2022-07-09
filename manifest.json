@@ -11,11 +11,23 @@
 	"content_scripts": [
 		{
 			"matches": ["*://meet.google.com/**-**-**"],
-			"js": ["js/libraries/jquery-3.6.0.min.js", "js/libraries/p5.min.js",
-				   "js/util.js", "js/translations.js", "js/templates.js",
-				   "js/cartridgeClass.js", "js/stationClass.js",
-				   "js/games/snake.js", "js/games/minesweeper.js",
-				   "js/contentScript.js"],
+			"js": [
+					"js/libraries/jquery-3.6.0.min.js", 
+					"js/libraries/p5.min.js",
+				   
+					"js/util.js", "js/translations.js", "js/templates.js",
+				   	"js/cartridgeClass.js", "js/stationClass.js",
+
+				   	"js/games/anim.js",
+				   
+				    "js/games/minesweeper/constants.js",
+					"js/games/minesweeper/components.js",
+					"js/games/minesweeper/cell.js", 
+					"js/games/minesweeper/map.js",
+					"js/games/minesweeper/minesweeper.js",
+
+				   "js/contentScript.js"
+			],
 			"css": ["css/pro.min.css", "css/main.css"]
 		}
 	],

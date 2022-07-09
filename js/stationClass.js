@@ -5,8 +5,8 @@ class Station {
         this.setup();
     }
 
-    addNewCartridge(...args) {
-        this.cartridges.push(new Cartridge(...args));
+    addNewCartridge(args) {
+        this.cartridges.push(new Cartridge(args));
     }
 
     setup() {
@@ -26,14 +26,15 @@ class Station {
 
         onReady($parent, itemSelector, () => {
             if ($parent.find('.game-extension')[0] === undefined) {
-
                 // Initiate changes to the DOM
                 $parent.css({'position': 'relative'});
                        
                 // Inject required HMTL
                 $parent.append(canvasHTML);
-                this.cartridges.forEach(cartridge => cartridge.injectHTML($parent.find('ul')));
- 
+                const $subParent = $parent.find('ul');
+                this.cartridges.forEach(
+                    cartridge => cartridge.injectHTML($subParent)
+                );
             }
         });
     }

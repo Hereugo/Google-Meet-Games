@@ -21,20 +21,11 @@ var station;
 function initialize() {
     station = new Station();
 
-    // Add new games to the station
-    // station.addNewCartridge(
-    //     "snake", 
-    //     "Snake", 
-    //     "A simple snake game", 
-    //     "img/snake.png",
-    //     snakeSketch
-    // );
-
-    station.addNewCartridge(
-        "minesweeper",
-        "Minesweeper",
-        "A simple minesweeper game",
-        "img/minesweeper.png",
-        new Minesweeper() 
-    );
+    station.addNewCartridge({
+        "id": "minesweeper",
+        "name": "Minesweeper",
+        "description": "A simple minesweeper game",
+        "imagePath": "img/minesweeper.png",
+        "game": new Minesweeper() 
+    });
 }

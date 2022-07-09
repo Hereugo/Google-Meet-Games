@@ -65,9 +65,7 @@ function onReady(parent, element, callback) {
     if ($(element)[0]) {
       try {
         callback();
-        me.disconnect();
-      }
-      catch(e) {
+      } finally {
         me.disconnect();
       }
     }

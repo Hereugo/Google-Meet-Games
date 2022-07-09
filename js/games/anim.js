@@ -1,44 +1,61 @@
 class AnimationHandler {
-    /**
-     * Handles all animations for the element.
-     * @param {class} p P5js class responsible for drawing on the canvas
-     * @param {function} animFunction Function that applies an animation on the element 
-     * @param {number} timer How many frames the animFunction will repeat
-     */
-    constructor(p, animFunction, timer = 0) {
-        this.p = p;
-        this.animFunction = animFunction;
-        this.timer = timer;
-
-        this.reset();
-    }
+    constructor() {
+        this.animations = [];
     
-
-    /**
-     * Resets the animation handler.
-     * @returns {None}
-     */
-    reset() {
-        this.ctimer = 0;
-        this.hasFinished = false;
-        this.hasStarted = false;
+        this.currentAnimation = undefined;
     }
-    
 
-    /**
-     * Starts to animate the element
-     * @returns {None}
-     */
-    loop() {
-        if (this.isFinished || !this.hasStarted)
+    addAnimation(animation) {
+        this.animations.push(animation);
+    }
+
+    startAnimation(id, startState = {}) {
+        this.currentAnimation = this.animations.find(animation => animation.id === id)
+    
+        this.currentAnimation.start(startState);
+
+        return this;
+    }
+
+    process(p, args = {}) {
+        if (this.currentAnimation === undefined) {
             return;
-
-        this.animFunction(this.p);
-        
-        this.ctimer++;
-        if (this.ctimer == this.timer) {
-            this.ctimer = 0;            
-            this.hasFinished = true;
         }
+
+        this.currentAnimation.running(p, args);
+    }
+}
+
+class Animation {
+    constructor(id, foo, time) {
+        this.id = id;
+        this.foo = foo;
+        this.time = time;
+    
+        this.ctime = 0;
+        this.state = {};
+        this.isRunning = false;
+    }
+    stop() {
+        this.ctime = 0;
+        this.isRunning = false;
+    }
+    start(startState = {}) {
+        this.isRunning = true;
+        this.state = startState;
+    }
+
+    running(p, args) {
+        if (!this.isRunning) {
+            return;
+        }
+
+        if (this.ctime == this.time) {
+            this.stop();
+            return;
+        }
+
+        this.state = this.foo(p, args, this.state);
+        this.ctime++;
     }
 }
