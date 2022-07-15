@@ -1,76 +1,103 @@
 class MinesweeperCell {
-    constructor(x, y, isBomb = false, value) {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
 
-        this.isBomb = isBomb;
-        this.value = isBomb ? "⬤" : value;
+        this.isBomb = false;
         this.exists = true;
 
-        this.animationHandler = new AnimationHandler();
-        this.animationHandler.addAnimation(new Animation(
-            'color-bg', 
-            this.color_bg.bind(this),
-            1
-        ));
-        this.animationHandler.addAnimation(new Animation(
-            'add-ons',
-            this.addons.bind(this),
-            1
-        ));
+        this.cellSize = $("#canvas").width() / this.getMap().getWidth();
 
-        this.particle = new Particle();
+        this.SIZE_RATIO = 28 / 45;
 
         this.setType("unrevealed");
     }
 
-    color_bg(p, args, state) {
-        const {map} = args;
+    mousePressed(p) {
+        let map = this.getMap();
 
+        // Reveal cell
+        if (p.mouseButton == p.LEFT) {
+            if (this.isBomb) {
+                let game = p5Handler.game;
+
+                game.setState("looseState");
+                return;
+            }
+
+            if (this.type == "unrevealed") {
+                this.setType("revealed");
+
+                // If cell value is 0 reveal neighboring cells
+                if (this.value == 0) {
+                    let destroyedFlags = map.revealNeighbors(this.x, this.y);
+                    
+                    map.setFlagsLeft(map.flagsLeft + destroyedFlags);
+                }
+            }
+        }
+
+        // Place/Remove flag on cell
+        if (p.mouseButton == p.RIGHT) {
+            if (this.isRevealed) {
+                return;
+            }
+
+            if (!this.isFlagged) {
+                if (map.flagsLeft == 0) {
+                    return;
+                }
+
+                this.setType("flag");
+                map.setFlagsLeft(map.flagsLeft - 1);
+            } else {
+                this.setType("unrevealed");
+                map.setFlagsLeft(map.flagsLeft + 1);
+            }
+        }
+    }
+
+    getMap() {
+        return p5Handler.game.objectLayer.getChild("map");
+    }
+
+    draw(p) {
         let oddEven = (this.x + this.y) % 2;
-        p.fill(this.bgColor[oddEven]);
 
-        // When mouse is over cell
-        let mouseCell = map.getCellOnPosition(p.mouseX, p.mouseY);
+        p.fill(this.bgColor[oddEven]);
+        p.noStroke();
+
+        let mouseCell = this.getMap().getCellOnPosition(p.mouseX, p.mouseY);
         if (!this.isRevealed && this.compare(mouseCell)) {
             p.fill(CELL_TYPE_COLOR["unrevealed-hover"]["bg"][0][oddEven]);
         }
 
         p.rect(
-            this.x * map.cellSize, 
-            this.y * map.cellSize, 
-            map.cellSize,
-            map.cellSize
+            this.x * this.cellSize, 
+            this.y * this.cellSize, 
+            this.cellSize,
+            this.cellSize
         );
 
-        return state;
-    }
-    
-    addons(p, args, state) {
-        const {map} = args;
-
-        // When cell is flagged
         if (this.isFlagged) {
             p.image(
-                map.flagIcon, 
-                this.x * map.cellSize, 
-                this.y * map.cellSize, 
-                map.cellSize,
-                map.cellSize
+                this.getMap().flagIcon, 
+                this.x * this.cellSize, 
+                this.y * this.cellSize, 
+                this.cellSize,
+                this.cellSize
             );
         }
 
         p.fill(this.textColor);
         p.textAlign(p.CENTER, p.CENTER);
-        p.textSize(map.cellSize * map.SIZE_RATIO);
+        p.textSize(this.cellSize * this.SIZE_RATIO);
 
         p.text(
             this.value, 
-            this.x * map.cellSize + map.cellSize / 2, 
-            this.y * map.cellSize + map.cellSize / 2
+            this.x * this.cellSize + this.cellSize / 2, 
+            this.y * this.cellSize + this.cellSize / 2
         );
-
-        return state;
     }
 
     setType(type) {
@@ -94,41 +121,10 @@ class MinesweeperCell {
     compare(cell) {
         return (this.x == cell.x && this.y == cell.y);
     }
-}
 
-class Particle {
-    constructor() {
-        this.animationHandler = new AnimationHandler();
-
-
-        this.animationHandler.addAnimation(new Animation(
-            'fling',
-            this.fling,
-            10
-        ));
-    }
-
-    fling(p, args, state) {
-        const {cell, map} = args;
-        state.angle -= state.turnRate; // Turn counter-clockwise
-        state.size -= state.sizeDropRate;
-
-        p.push();
-        // Apply transformations
-        p.translate(
-            cell.x * map.cellSize + map.cellSize / 2, 
-            cell.y * map.cellSize + map.cellSize / 2
-        );
-        p.rotate(state.angle);
-        p.rectMode(p.CENTER);
-
-        let oddEven = (cell.x + cell.y) % 2;
-        p.fill(CELL_TYPE_COLOR['unrevealed']["bg"][0][oddEven]);
-
-        p.rect(0, 0, state.size, state.size);
-
-        p.pop();
-
-        return state;
+    looseState() {
+        if (this.isBomb) {
+            this.setType("bomb");
+        }
     }
 }

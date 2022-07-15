@@ -26,6 +26,8 @@ function initialize() {
         "name": "Minesweeper",
         "description": "A simple minesweeper game",
         "imagePath": "img/minesweeper.png",
-        "game": new Minesweeper() 
+        "game": new MinesweeperGame()
     });
+
+    p5Handler = new P5Handler();
 }

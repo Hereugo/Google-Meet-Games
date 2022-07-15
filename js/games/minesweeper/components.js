@@ -1,61 +1,78 @@
-class MinesweeperHeader {
-    /**
-     * Constructor for the header class. Setups up initial values.
-     * @param {class} $gameCanvas Jquery element of the canvas that would be drawn on. 
-     */
-    constructor($gameCanvas) {
+class MinesweeperUI {
+    constructor(container) {
+        this.$container = container;
+    }
+
+    setup() {
+        // override
+    }
+
+    draw(p) {
+        // override
+    }
+
+    preload(p) {
+        // override
+    }
+}
+
+class MinesweeperHeader extends MinesweeperUI {
+    constructor(container) {
+        super(container);
+
+        this.preload();
+
         this.html = `
             <div class="canvas-header">
                 <div class="canvas-item">
-                    <img src="${chrome.runtime.getURL("img/flag_icon.png")}"/>
+                    <img src="${this.flagIcon}"/>
                     <span class="flag-value">0</span>
                 </div>
 
                 <div class="canvas-item">
-                    <img src="${chrome.runtime.getURL("img/clock_icon.png")}"/>
+                    <img src="${this.clockIcon}"/>
                     <span class="clock-value">0</span>
                 </div>
             </div>
         `;
-
-        this.$gameCanvas = $gameCanvas;
     }
 
-
-    injectHTML() {
-        $(this.html).insertBefore(this.$gameCanvas);
+    preload() {
+        this.flagIcon = chrome.runtime.getURL("img/flag_icon.png");
+        this.clockIcon = chrome.runtime.getURL("img/clock_icon.png");
     }
 
-
-    setText(className, value) {
-        $(`.${className}`).text(value);
+    setup() {
+        $(this.html).insertBefore(this.$container);
     }
 
+    update() {
+        let flagsLeft = p5Handler.game.objectLayer.getChild("map").flagsLeft;
+        let clockValue = p5Handler.game.clock;
 
-    update(flagsLeft, clock) {
-        // Update header flag value
-        this.setText("flag-value", flagsLeft);
-
-        // Update header clock value
-        this.setText("clock-value", clock);
+        $('.flag-value').text(flagsLeft);
+        $('.clock-value').text(clockValue);
     }
 }
 
-class MinesweeperPopup {
-    constructor($gameCanvas) {
-        this.$gameCanvas = $gameCanvas;
+
+class MinesweeperPopup extends MinesweeperUI {
+    constructor(container) {
+        super(container);
+
+        this.preload();
 
         this.html = `
             <div id="final-screen">
                 <div id="overlay"></div>
                 <div id="board">
                     <div id="result">
-                        <img src="${chrome.runtime.getURL("img/clock_icon.png")}" class="icon-lg" id="clock-icon">
-                        <img src="${chrome.runtime.getURL("img/trophy_icon.png")}" class="icon-lg" id="trophy-icon">
+                        <img src="${this.clockIcon}" class="icon-lg" id="clock-icon">
+                        <img src="${this.trophyIcon}" class="icon-lg" id="trophy-icon">
                         <div id="score">000</div>
                         <div id="best-score">000</div>
                     </div>
-                    <img src="${chrome.runtime.getURL(`img/lose_screen.png`)}" id="result-img">
+                    <img src="${this.looseScreen}" id="result-img">
                 </div>
                 <div id="replay">
                     Play Again!
@@ -64,16 +81,22 @@ class MinesweeperPopup {
         `;
     }
 
-    injectHTML(resetGame) {
-        $(this.html).insertBefore(this.$gameCanvas);
-
-        $("#replay").click(resetGame);
+    preload() {
+        this.clockIcon = chrome.runtime.getURL("img/clock_icon.png");
+        this.trophyIcon = chrome.runtime.getURL("img/trophy_icon.png");
+        this.looseScreen = chrome.runtime.getURL("img/loose_screen.png");
     }
 
-    setState(gameState = "lose", score = "000", bestScore = "000") {
-        $("#score").text(score);
-        $("#best-score").text(bestScore);
-        $("#result-img").attr('src', chrome.runtime.getURL(`img/${gameState}_screen.png`));
+    reset() {
+        this.hide();
+    }
+
+    setup() {
+        $(this.html).insertBefore(this.$container);
+
+        $("#replay").click(() => {
+            p5Handler.game.reset();
+        });
     }
 
     show() {
@@ -82,5 +105,25 @@ class MinesweeperPopup {
 
     hide() {
         $("#final-screen").css({"display": "none"});
+    }
+
+    inprocessState() {
+        this.hide();
+    }
+    looseState() {
+        this.setState("loose", p5Handler.game.score, p5Handler.game.bestScore);
+        this.show();
+    }
+    winState() {
+        this.setState("win", p5Handler.game.score, p5Handler.game.bestScore);
+        this.show();
+    }
+
+    setState(state = "loose", score = "---", bestScore = "---") {
+        console.log(score, bestScore);
+
+        $("#score").text(score);
+        $("#best-score").text(bestScore);
+        $("#result-img").attr('src', chrome.runtime.getURL(`img/${state}_screen.png`));
     }
 }

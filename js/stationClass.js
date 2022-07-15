@@ -9,6 +9,10 @@ class Station {
         this.cartridges.push(new Cartridge(args));
     }
 
+    findCartridge(id) {
+        return this.cartridges.find(cartridge => cartridge.id === id);
+    }
+
     setup() {
         // Set an observer on the container
         const observer = new MutationObserver(this.injectHTML.bind(this));
@@ -26,11 +30,17 @@ class Station {
 
         onReady($parent, itemSelector, () => {
             if ($parent.find('.game-extension')[0] === undefined) {
-                // Initiate changes to the DOM
                 $parent.css({'position': 'relative'});
                        
-                // Inject required HMTL
-                $parent.append(canvasHTML);
+                let $container = $(canvasHTML);
+                
+                $parent.append($container);
+
+                p5Handler.setContainer($container);
+                $container.on("contextmenu", function(e) {
+                    return false;
+                });
+
                 const $subParent = $parent.find('ul');
                 this.cartridges.forEach(
                     cartridge => cartridge.injectHTML($subParent)

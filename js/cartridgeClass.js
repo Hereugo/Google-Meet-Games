@@ -3,10 +3,9 @@ class Cartridge {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.imageSrc = chrome.runtime.getURL(imagePath);    
-        this.game = game;
+        this.imageSrc = chrome.runtime.getURL(imagePath);
 
-        this.$gameCanvas;
+        this.game = game;
     }
 
     getCartridge() {
@@ -25,21 +24,14 @@ class Cartridge {
     }
 
     setup() {
-        this.$gameCanvas = $("#canvas");
-        this.$gameCanvas.on("contextmenu", function(e) {
-            return false;
-        });
-        
-        this.game.init(this.$gameCanvas);
-
-        const $cartridge = this.getCartridge();
-        $cartridge.click(this.initGame.bind(this));
+        this.getCartridge().click(this.initGame.bind(this));
     }
 
     initGame() {
         // Show the canvas
-        this.$gameCanvas.css({"z-index": "999"});
+        p5Handler.getContainer().css({"z-index": "999"});
         
-        new p5(this.game.sketch.bind(this.game), this.$gameCanvas[0]);
+        p5Handler.setGame(this.game);
+        p5Handler.start();
     }
 }

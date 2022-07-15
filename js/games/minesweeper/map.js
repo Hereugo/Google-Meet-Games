@@ -1,63 +1,74 @@
 class MinesweeperMap {
-    constructor(p, $gameCanvas, width, height, numBombs) {
-        this.p = p;
-
+    constructor(width, height, numBombs) {
         this.width = width;
         this.height = height;
         this.numBombs = numBombs;
+        this.flagsLeft = numBombs;
 
-        this.map = {};
-        this.bombs = {};
+        this.grid = {};
+    }
 
-        this.cellSize = $gameCanvas.width() / this.width;
-        this.SIZE_RATIO = 28 / 45;
+    reset() {
+        this.grid = {};
+        this.flagsLeft = this.numBombs;
+    }
+
+    preload(p) {
+        this.flagIcon = p.loadImage(chrome.runtime.getURL("img/flag_icon.png"));
+    }
+
+    mousePressed(p) {
+        let cell = this.getCellOnPosition(p.mouseX, p.mouseY);
+        if (!cell.exists) {
+            return;
+        }
+        
+        cell.mousePressed(p);
+
+        if (this.checkWin()) {
+            p5Handler.game.setState("winState");
+        }
     }
 
     setup() {
-        this.generateBombPositions();
-        this.generateMap();
+        this.generateGrid();
     }
 
-    drawMap() {
-        for (let coords in this.map) {
-            let cell = this.map[coords];
-
-            cell.animationHandler.startAnimation('color-bg').process(this.p, {'map': this});
-            cell.animationHandler.startAnimation('add-ons').process(this.p, {'map': this});
-
-            cell.particle.animationHandler.process(this.p, {'cell': cell, 'map': this});
+    draw(p) {
+        for (let coords in this.grid) {
+            let cell = this.grid[coords];
+            
+            cell.draw(p);
         }
     }
 
-    generateMap() {
-        this.map = {};
-
+    generateGrid() {
         for (var x = 0; x < this.width; x++) {
             for (var y = 0; y < this.height; y++) {
-                this.map[`${x},${y}`] = new MinesweeperCell(
-                    x, y, 
-                    this.bombs[`${x},${y}`] ? true : false, 
-                    this.cntBombNeighbors(x, y)
-                );
-            }
-        }
-    }
-
-    generateBombPositions() {
-        this.bombs = {};
-
-        var sample = [];
-        for (var x = 0; x < this.width; x++) {
-            for (var y = 0; y < this.height; y++) {
-                sample.push(`${x},${y}`);
+                this.grid[`${x},${y}`] = new MinesweeperCell(x, y);
             }
         }
 
-    
-        for (var i = 0; i < this.numBombs; i++) {
-            var idx = Math.floor(Math.random() * (sample.length));
-            this.bombs[sample[idx]] = true;
-            sample.splice(idx, 1);
+        // Set cell type. Bomb or not bomb
+        let cnt = this.numBombs;
+        while (cnt > 0) {
+            let x = Math.floor(Math.random() * this.width);
+            let y = Math.floor(Math.random() * this.height);
+
+            let cell = this.getCell(x, y);
+
+            if (cell.isBomb) {
+                continue;
+            }
+
+            cell.isBomb = true;
+            cnt--;
+        }
+
+        // Set cell value
+        for (let coords in this.grid) {
+            let cell = this.grid[coords];
+            cell.value = cell.isBomb ? "⬤" : this.cntBombNeighbors(cell.x, cell.y);
         }
     }
 
@@ -66,7 +77,10 @@ class MinesweeperMap {
         for (var i = -1; i <= 1; i++) {
             for (var j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) continue;
-                if (this.bombs[`${x + i},${y + j}`]) cnt++;
+
+                let cell = this.getCell(x + i, y + j);
+
+                if (cell.isBomb) cnt++;
             }
         }
         return cnt;
@@ -105,9 +119,44 @@ class MinesweeperMap {
         return destroyedFlags;
     }
 
+    setCellType(type, {cell, x, y}) {
+        cell = cell || this.getCell(x, y);
+
+        if (!cell.exists) {
+            return;
+        }
+
+        cell.setType(type);
+    }
+
+    getCell(x, y) {
+        return this.grid[`${x},${y}`] || {exists: false};
+    }
+
+    getCellOnPosition(x, y) {
+        let cellSize = $("#canvas").width() / this.width;
+
+        let cellX = Math.floor(x / cellSize);
+        let cellY = Math.floor(y / cellSize);
+
+        return this.getCell(cellX, cellY);
+    }
+
+    getWidth() {
+        return this.width;
+    }
+
+    getHeight() {
+        return this.height;
+    }
+
+    setFlagsLeft(num) {
+        this.flagsLeft = num;
+    }
+
     checkWin() {
-        for (let coords in this.map) {
-            let cell = this.map[coords];
+        for (let coords in this.grid) {
+            let cell = this.grid[coords];
 
             if (cell.isBomb) {
                 if (!cell.isFlagged)
@@ -120,24 +169,11 @@ class MinesweeperMap {
         return true;
     }
 
-    setCellType(type, {cell, x, y}) {
-        cell = cell || this.getCell(x, y);
+    looseState() {
+        for (let coords in this.grid) {
+            let cell = this.grid[coords];
 
-        if (!cell.exists) {
-            return;
+            cell.looseState();
         }
-
-        cell.setType(type);
-    }
-
-    getCell(x, y) {
-        return this.map[`${x},${y}`] || {exists: false};
-    }
-
-    getCellOnPosition(x, y) {
-        let cellX = Math.floor(x / this.cellSize);
-        let cellY = Math.floor(y / this.cellSize);
-
-        return this.getCell(cellX, cellY);
     }
 }

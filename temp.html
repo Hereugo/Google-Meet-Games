@@ -97,8 +97,8 @@
         /* ************************************************** */
 
         #final-screen {
-            /*display: none;*/
-            display: block; 
+            display: none;
+            /* display: block;  */
         }
 
         #board{
@@ -200,8 +200,20 @@
         </div>
     </div>
 
-    <!-- <script src="js/libraries/p5.min.js"></script> -->
-    <!-- <script src="js/libraries/jquery-3.6.0.min.js"></script> -->
-    <!-- <script src="js/games/minesweeper.js"></script> -->
+    <script src="js/libraries/p5.min.js"></script>
+    <script src="js/libraries/jquery-3.6.0.min.js"></script>
+
+    <script src="js/util.js"></script>
+    <script src="js/games/GameLayers.js"></script>
+    <script src="js/games/P5Handler.js"></script>
+    <script src="js/games/minesweeper/constants.js"></script>
+    <script src="js/games/minesweeper/components.js"></script>
+    <script src="js/games/minesweeper/cell.js"></script>
+    <script src="js/games/minesweeper/map.js"></script>
+    <script src="js/games/minesweeper/main.js"></script>
+
+    <script>
+        var minesweeperGame = new Game($("#canvas"));
+    </script>
 </body>
 </html>
