@@ -66,7 +66,7 @@ class MinesweeperCell {
         p.noStroke();
 
         let mouseCell = this.getMap().getCellOnPosition(p.mouseX, p.mouseY);
-        if (!this.isRevealed && this.compare(mouseCell)) {
+        if (!this.isRevealed && this.compare(mouseCell) && this.type != "bomb") {
             p.fill(CELL_TYPE_COLOR["unrevealed-hover"]["bg"][0][oddEven]);
         }
 

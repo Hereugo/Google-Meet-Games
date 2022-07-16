@@ -9,12 +9,12 @@ class MinesweeperGame extends Game {
         this.stateMachine.addTransition('inprocess', (function onMousePressed() {
             this.objectLayer.mousePressed(this.p);
         }).bind(this), 'onMousePressed');
-        this.stateMachine.addTransition('inprocess', this.reset.bind(this), 'onEnter');
     }
 
     async reset() {
-        this.clock = 0;
+        this.stateMachine.setState('inprocess');
 
+        this.clock = 0;
         this.score = 0;
         let { bestScore } = await getStorageData(['bestScore']);
         this.bestScore = bestScore;
@@ -26,7 +26,7 @@ class MinesweeperGame extends Game {
     init($container) {
         this.$container = $container;
 
-        this.objectLayer.addChild('map', new MinesweeperMap(14, 19, 1));
+        this.objectLayer.addChild('map', new MinesweeperMap(14, 21, 50));
         this.objectLayer.addChild('header', new MinesweeperHeader(this.$container));
         this.objectLayer.addChild('popup', new MinesweeperPopup(this.$container));
     }

@@ -19,6 +19,8 @@ class P5Handler {
     }
 
     stop() {
+        if (this.game == null) return;
+
         this.game.p.remove();
     }
 

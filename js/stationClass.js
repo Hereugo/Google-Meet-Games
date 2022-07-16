@@ -42,6 +42,7 @@ class Station {
                 });
 
                 $(".VfPpkd-Bz112c-LgbsSe.yHy1rc.eT1oJ.IWtuld.wBYOYb").click(p5Handler.stop.bind(p5Handler));
+                $("[jsname='A5il2e']").click(p5Handler.stop.bind(p5Handler));
 
                 const $subParent = $parent.find('ul');
                 this.cartridges.forEach(

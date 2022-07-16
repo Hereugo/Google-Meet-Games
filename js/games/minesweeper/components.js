@@ -101,7 +101,7 @@ class MinesweeperPopup extends MinesweeperUI {
         $(this.html).insertBefore(this.$container);
 
         $("#replay").click(() => {
-            p5Handler.game.stateMachine.setState('inprocess');
+            p5Handler.game.reset();
         });
     }
 
