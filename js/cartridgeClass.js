@@ -20,12 +20,9 @@ class Cartridge {
             this.imageSrc
         ));
         
-        this.setup();
-    }
-
-    setup() {
         this.getCartridge().click(this.initGame.bind(this));
     }
+
 
     initGame() {
         // Show the canvas

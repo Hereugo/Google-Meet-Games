@@ -6,11 +6,15 @@ class MinesweeperMap {
         this.flagsLeft = numBombs;
 
         this.grid = {};
+
+        this.stateMachine = new StateMachine("inprocess");
+        this.stateMachine.addTransition("loose", this.looseState.bind(this), "onEnter");
     }
 
     reset() {
         this.grid = {};
         this.flagsLeft = this.numBombs;
+        this.stateMachine.setState("inprocess");
     }
 
     preload(p) {
@@ -26,7 +30,7 @@ class MinesweeperMap {
         cell.mousePressed(p);
 
         if (this.checkWin()) {
-            p5Handler.game.setState("winState");
+            p5Handler.game.stateMachine.setState("win");
         }
     }
 
@@ -173,7 +177,9 @@ class MinesweeperMap {
         for (let coords in this.grid) {
             let cell = this.grid[coords];
 
-            cell.looseState();
+            if (cell.isBomb) {
+                cell.setType("bomb");
+            }
         }
     }
 }

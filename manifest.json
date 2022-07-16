@@ -18,12 +18,12 @@
 					"js/util.js", "js/translations.js", "js/templates.js",
 				   	"js/cartridgeClass.js", "js/stationClass.js",
 				   
-
-					"js/games/minesweeper/components.js",
+					"js/games/StateMachine.js",
 					"js/games/GameLayers.js",
 					"js/games/P5Handler.js",
 					"js/games/Game.js",
 
+					"js/games/minesweeper/components.js",
 				    "js/games/minesweeper/constants.js",
 					"js/games/minesweeper/cell.js", 
 					"js/games/minesweeper/map.js",

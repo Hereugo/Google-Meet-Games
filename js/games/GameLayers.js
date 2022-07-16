@@ -56,13 +56,13 @@ function ObjectLayer() {
             }
         });
         
-        //State change
-        let state = p5Handler.game.state;
+        // //State change
+        // let state = p5Handler.game.state;
 
-        p5Handler.game[state] && p5Handler.game[state]();
-        Object.values(this.children).forEach(child => {
-            child[state] && child[state]();
-        });
+        // p5Handler.game[state] && p5Handler.game[state]();
+        // Object.values(this.children).forEach(child => {
+        //     child[state] && child[state]();
+        // });
     }
 }
 

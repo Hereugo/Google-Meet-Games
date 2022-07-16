@@ -19,9 +19,7 @@ class MinesweeperCell {
         // Reveal cell
         if (p.mouseButton == p.LEFT) {
             if (this.isBomb) {
-                let game = p5Handler.game;
-
-                game.setState("looseState");
+                p5Handler.game.stateMachine.setState("loose");
                 return;
             }
 
@@ -120,11 +118,5 @@ class MinesweeperCell {
 
     compare(cell) {
         return (this.x == cell.x && this.y == cell.y);
-    }
-
-    looseState() {
-        if (this.isBomb) {
-            this.setType("bomb");
-        }
     }
 }

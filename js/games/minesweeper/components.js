@@ -79,6 +79,12 @@ class MinesweeperPopup extends MinesweeperUI {
                 </div>
             </div>
         `;
+
+        this.stateMachine = new StateMachine("inprocess");
+        this.stateMachine.addTransition("inprocess", this.hide, "onEnter");
+        this.stateMachine.addTransition("inprocess", this.show, "onExit");
+        this.stateMachine.addTransition("loose", this.looseState.bind(this), "onEnter");
+        this.stateMachine.addTransition("win", this.winState.bind(this), "onEnter");
     }
 
     preload() {
@@ -88,14 +94,14 @@ class MinesweeperPopup extends MinesweeperUI {
     }
 
     reset() {
-        this.hide();
+        this.stateMachine.setState("inprocess");
     }
 
     setup() {
         $(this.html).insertBefore(this.$container);
 
         $("#replay").click(() => {
-            p5Handler.game.reset();
+            p5Handler.game.stateMachine.setState('inprocess');
         });
     }
 
@@ -107,19 +113,14 @@ class MinesweeperPopup extends MinesweeperUI {
         $("#final-screen").css({"display": "none"});
     }
 
-    inprocessState() {
-        this.hide();
-    }
     looseState() {
-        this.setState("loose", p5Handler.game.score, p5Handler.game.bestScore);
-        this.show();
+        this._setState("loose", p5Handler.game.score, p5Handler.game.bestScore);
     }
     winState() {
-        this.setState("win", p5Handler.game.score, p5Handler.game.bestScore);
-        this.show();
+        this._setState("win", p5Handler.game.score, p5Handler.game.bestScore);
     }
 
-    setState(state = "loose", score = "---", bestScore = "---") {
+    _setState(state = "loose", score = "---", bestScore = "---") {
         console.log(score, bestScore);
 
         $("#score").text(score);

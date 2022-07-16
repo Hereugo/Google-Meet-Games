@@ -2,15 +2,17 @@ class MinesweeperGame extends Game {
     constructor() {
         super();
 
-        this.state = 'inprocessState'; // inprocessState, winState, looseState
-        this.clock = 0;
-
-        this.score = 0;
-        this.bestScore = "---";
+        this.stateMachine = new StateMachine('inprocess');
+        this.stateMachine.addTransition('loose' , this.looseState.bind(this), 'onEnter');
+        this.stateMachine.addTransition('win' , this.winState.bind(this), 'onEnter');
+        this.stateMachine.addTransition('inprocess' , this.inprocessState.bind(this), 'onUpdate');
+        this.stateMachine.addTransition('inprocess', (function onMousePressed() {
+            this.objectLayer.mousePressed(this.p);
+        }).bind(this), 'onMousePressed');
+        this.stateMachine.addTransition('inprocess', this.reset.bind(this), 'onEnter');
     }
 
     async reset() {
-        this.state = 'inprocessState';
         this.clock = 0;
 
         this.score = 0;
@@ -24,17 +26,13 @@ class MinesweeperGame extends Game {
     init($container) {
         this.$container = $container;
 
-        this.objectLayer.addChild('header', new MinesweeperHeader(this.$container));
         this.objectLayer.addChild('map', new MinesweeperMap(14, 19, 1));
+        this.objectLayer.addChild('header', new MinesweeperHeader(this.$container));
         this.objectLayer.addChild('popup', new MinesweeperPopup(this.$container));
     }
 
     mousePressed() {
-        if (this.state !== 'inprocessState') {
-            return;
-        }
-
-        this.objectLayer.mousePressed(this.p);
+        this.stateMachine.dispatchOnMousePressedEvents();
     }
 
     preload() {
@@ -53,10 +51,10 @@ class MinesweeperGame extends Game {
     }
 
     update() {
-        if (this.state !== 'inprocessState') {
-            return;
-        }
+        this.stateMachine.dispatchOnUpdateEvents();
+    }
 
+    inprocessState() {
         // Game update
         this.objectLayer.update();
 
@@ -64,12 +62,11 @@ class MinesweeperGame extends Game {
             this.clock++;
         }
     }
-
-    setState(state) {
-        this.state = state;
-    }
-    async looseState() {
+    looseState() {
         this.score = this.clock;
+    
+        this.objectLayer.getChild('map').stateMachine.setState('loose');
+        this.objectLayer.getChild('popup').stateMachine.setState('loose');
     }
     async winState() {
         this.score = this.clock;
@@ -78,8 +75,9 @@ class MinesweeperGame extends Game {
             this.bestScore = this.score;
             await setStorageData({ 'bestScore': this.score });
         }
-    }
 
+        this.objectLayer.getChild('popup').stateMachine.setState('win');
+    }
 
     render() {
         // Game render

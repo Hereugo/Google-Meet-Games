@@ -18,6 +18,9 @@ class P5Handler {
         return this.$container;
     }
 
+    stop() {
+        this.game.p.remove();
+    }
 
     start() {
         this.game.init(this.$container);
