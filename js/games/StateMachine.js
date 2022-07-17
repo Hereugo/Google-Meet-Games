@@ -34,17 +34,36 @@ class StateMachine {
             };
         }
     }
-    addTransition(state, callback, listener = "onEnter") {
+    
+    addTransition(state, callback, listener, args) {
+        args = args || {};
+
         this.addState(state);
 
-        this.transitions[state][listener][callback.name] = callback;
+        const name = callback.name.replace(/^bound /, "");
+        this.transitions[state][listener][name] = {
+            callback,
+            args
+        };
     }
 
-    dispatch(event, listener) {
+    updateEvent(state, name, listener, {callback, args}) {
+        let event = this.transitions[state][listener][name];
+
+        this.transitions[state][listener][name] = {
+            "callback": callback || event.callback,
+            "args": args || event.args
+        }
+    }
+
+    _dispatch(event, listener) {
         const action = this.transitions[this.state][listener][event];
 
         if (action) {
-            action.call(this);
+            let newArgs = action.callback.call(this, action.args);
+            if (newArgs) {
+                this.updateEvent(this.state, event, listener, {'args': newArgs});
+            }
         } else {
             console.log("Invalid action: " + listener + " " + event);
         }
@@ -52,22 +71,22 @@ class StateMachine {
 
     dispatchOnEnterEvents() {
         for (let event in this.transitions[this.state]["onEnter"]) {
-            this.dispatch(event, "onEnter");
+            this._dispatch(event, "onEnter");
         }
     }
     dispatchOnMousePressedEvents() {
         for (let event in this.transitions[this.state]["onMousePressed"]) {
-            this.dispatch(event, "onMousePressed");
+            this._dispatch(event, "onMousePressed");
         }
     }
     dispatchOnExitEvents() {
         for (let event in this.transitions[this.state]["onExit"]) {
-            this.dispatch(event, "onExit");
+            this._dispatch(event, "onExit");
         }
     }
     dispatchOnUpdateEvents() {
         for (let event in this.transitions[this.state]["onUpdate"]) {
-            this.dispatch(event, "onUpdate");
+            this._dispatch(event, "onUpdate");
         }
     }
 }

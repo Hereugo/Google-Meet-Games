@@ -19,6 +19,8 @@
 				   	"js/cartridgeClass.js", "js/stationClass.js",
 				   
 					"js/games/StateMachine.js",
+					"js/games/AnimationHandler.js",
+					"js/games/ParticleSystem.js",
 					"js/games/GameLayers.js",
 					"js/games/P5Handler.js",
 					"js/games/Game.js",

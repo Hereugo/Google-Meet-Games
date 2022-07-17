@@ -11,6 +11,14 @@ class MinesweeperCell {
         this.SIZE_RATIO = 28 / 45;
 
         this.setType("unrevealed");
+
+        this.particleSystem = new ParticleSystem(
+            this.x * this.cellSize, 
+            this.y * this.cellSize, 
+            this.cellSize,
+            this.bgColor[(this.x + this.y) % 2],
+            1
+        );
     }
 
     mousePressed(p) {
@@ -18,6 +26,8 @@ class MinesweeperCell {
 
         // Reveal cell
         if (p.mouseButton == p.LEFT) {
+            this.particleSystem.start();
+            
             if (this.isBomb) {
                 p5Handler.game.stateMachine.setState("loose");
                 return;

@@ -44,6 +44,11 @@ class MinesweeperMap {
             
             cell.draw(p);
         }
+        for (let coords in this.grid) {
+            let cell = this.grid[coords];
+            
+            cell.particleSystem.draw();
+        }
     }
 
     generateGrid() {
@@ -113,6 +118,7 @@ class MinesweeperMap {
                 }
 
                 cell.setType("revealed");
+                cell.particleSystem.start();
 
                 if (cell.value == value) {
                     destroyedFlags += this.revealNeighbors(x2, y2, value);
