@@ -1,5 +1,6 @@
 //Globals
 var station;
+var p5Handler;
 
 //Setup
 (async () => {

@@ -9,6 +9,30 @@ class MinesweeperMap {
 
         this.stateMachine = new StateMachine("inprocess");
         this.stateMachine.addTransition("loose", this.looseState.bind(this), "onEnter");
+
+        this.animationHandler = new AnimationHandler();
+        this.animationHandler.addAnimation((
+            function shakeEffect({p, offset, frame, duration}) {
+                if (frame >= duration) {
+                    this.animationHandler.stop();
+                    return;
+                }
+
+                p.translate(
+                    p.random(-offset, offset), 
+                    p.random(-offset, offset)
+                );
+
+                frame++;
+
+                return {p, offset, frame, duration};
+            }
+        ).bind(this), {
+            p: p5Handler.game.p,
+            offset: 5,
+            frame: 0,
+            duration: 10
+        });
     }
 
     reset() {
@@ -26,8 +50,20 @@ class MinesweeperMap {
         if (!cell.exists) {
             return;
         }
-        
+
+        // FIXME: Shake effect only when cell is not revealed. 
+        if (p.mouseButton == p.LEFT) {    
+            this.animationHandler.reset({
+                p: p5Handler.game.p,
+                offset: 5,
+                frame: 0,
+                duration: 10
+            });
+            this.animationHandler.start();
+        }
         cell.mousePressed(p);
+
+        console.log(this);
 
         if (this.checkWin()) {
             p5Handler.game.stateMachine.setState("win");
@@ -39,22 +75,30 @@ class MinesweeperMap {
     }
 
     draw(p) {
+        p.push();
+        
+        this.animationHandler.run();
+        
         for (let coords in this.grid) {
             let cell = this.grid[coords];
             
             cell.draw(p);
         }
+
+        p.pop();
+
         for (let coords in this.grid) {
             let cell = this.grid[coords];
             
             cell.particleSystem.draw();
         }
+        
     }
 
     generateGrid() {
         for (var x = 0; x < this.width; x++) {
             for (var y = 0; y < this.height; y++) {
-                this.grid[`${x},${y}`] = new MinesweeperCell(x, y);
+                this.grid[`${x},${y}`] = new MinesweeperCell(x, y, this);
             }
         }
 

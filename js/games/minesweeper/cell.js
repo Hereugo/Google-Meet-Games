@@ -1,12 +1,14 @@
 class MinesweeperCell {
-    constructor(x, y) {
+    constructor(x, y, gridRef) {
         this.x = x;
         this.y = y;
 
         this.isBomb = false;
         this.exists = true;
 
-        this.cellSize = $("#canvas").width() / this.getMap().getWidth();
+        this.gridRef = gridRef;
+
+        this.cellSize = p5Handler.$container.width() / this.gridRef.getWidth();
 
         this.SIZE_RATIO = 28 / 45;
 
@@ -22,12 +24,8 @@ class MinesweeperCell {
     }
 
     mousePressed(p) {
-        let map = this.getMap();
-
         // Reveal cell
         if (p.mouseButton == p.LEFT) {
-            this.particleSystem.start();
-            
             if (this.isBomb) {
                 p5Handler.game.stateMachine.setState("loose");
                 return;
@@ -35,12 +33,13 @@ class MinesweeperCell {
 
             if (this.type == "unrevealed") {
                 this.setType("revealed");
+                this.particleSystem.start();
 
                 // If cell value is 0 reveal neighboring cells
                 if (this.value == 0) {
-                    let destroyedFlags = map.revealNeighbors(this.x, this.y);
+                    let destroyedFlags = this.gridRef.revealNeighbors(this.x, this.y);
                     
-                    map.setFlagsLeft(map.flagsLeft + destroyedFlags);
+                    this.gridRef.setFlagsLeft(this.gridRef.flagsLeft + destroyedFlags);
                 }
             }
         }
@@ -52,30 +51,29 @@ class MinesweeperCell {
             }
 
             if (!this.isFlagged) {
-                if (map.flagsLeft == 0) {
+                if (this.gridRef.flagsLeft == 0) {
                     return;
                 }
 
                 this.setType("flag");
-                map.setFlagsLeft(map.flagsLeft - 1);
+                this.gridRef.setFlagsLeft(this.gridRef.flagsLeft - 1);
             } else {
                 this.setType("unrevealed");
-                map.setFlagsLeft(map.flagsLeft + 1);
+                this.gridRef.setFlagsLeft(this.gridRef.flagsLeft + 1);
             }
         }
-    }
-
-    getMap() {
-        return p5Handler.game.objectLayer.getChild("map");
     }
 
     draw(p) {
         let oddEven = (this.x + this.y) % 2;
 
         p.fill(this.bgColor[oddEven]);
+
+        //TODO: Draw cell border when its unrevealed.
+        // Border color: #87af3a
         p.noStroke();
 
-        let mouseCell = this.getMap().getCellOnPosition(p.mouseX, p.mouseY);
+        let mouseCell = this.gridRef.getCellOnPosition(p.mouseX, p.mouseY);
         if (!this.isRevealed && this.compare(mouseCell) && this.type != "bomb") {
             p.fill(CELL_TYPE_COLOR["unrevealed-hover"]["bg"][0][oddEven]);
         }
@@ -89,7 +87,7 @@ class MinesweeperCell {
 
         if (this.isFlagged) {
             p.image(
-                this.getMap().flagIcon, 
+                this.gridRef.flagIcon, 
                 this.x * this.cellSize, 
                 this.y * this.cellSize, 
                 this.cellSize,

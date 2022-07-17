@@ -25,8 +25,8 @@ class P5Handler {
     }
 
     start() {
-        this.game.init(this.$container);
-
+        this.game.setContainer(this.$container);
+ 
         new p5(this.game.sketch.bind(this.game), this.$container[0]);
     }
 }

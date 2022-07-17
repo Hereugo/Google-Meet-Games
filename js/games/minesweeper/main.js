@@ -29,10 +29,8 @@ class MinesweeperGame extends Game {
         this.objectLayer.setup();
     }
 
-    init($container) {
-        this.$container = $container;
-
-        this.objectLayer.addChild('map', new MinesweeperMap(14, 21, 1));
+    init() {
+        this.objectLayer.addChild('map', new MinesweeperMap(14, 21, 30));
         this.objectLayer.addChild('header', new MinesweeperHeader(this.$container));
         this.objectLayer.addChild('popup', new MinesweeperPopup(this.$container));
     }

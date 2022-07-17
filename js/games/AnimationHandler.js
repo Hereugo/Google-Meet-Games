@@ -16,4 +16,8 @@ class AnimationHandler {
     run() {
         this.stateMachine.dispatchOnUpdateEvents();
     }
+
+    reset(args) {
+        this.stateMachine.updateEvent("ON", "shakeEffect", "onUpdate", {'args': args});
+    }
 }

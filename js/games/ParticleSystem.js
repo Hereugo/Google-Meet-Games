@@ -76,42 +76,10 @@ class Particle {
         p.translate(this.pos.x, this.pos.y);
         p.rotate(this.rotRate);
 
+        p.noStroke();
         p.fill(this.color);
         p.rect(0, 0, this.sz, this.sz);
 
         p.pop();
     }
 }
-
-
-// this.animationHandler = new AnimationHandler();
-// this.animationHandler.addAnimation((
-//     function particleAnimation({p, frame, duration, loop}) {
-//         console.log(frame, duration);
-//         if (frame >= duration) {
-//             this.animationHandler.stop();
-//             return;
-//         }
-
-//         p.push();
-        
-//         p.fill('red');
-//         p.rect(
-//             this.x * this.cellSize, 
-//             this.y * this.cellSize, 
-//             this.cellSize, this.cellSize
-//         );
-
-//         p.pop();
-        
-//         return {
-//             p: p,
-//             frame: frame + 1,
-//             duration: duration
-//         }
-//     }
-// ).bind(this), {
-//     p: p5Handler.game.p,
-//     frame: 0,
-//     duration: 10
-// })
