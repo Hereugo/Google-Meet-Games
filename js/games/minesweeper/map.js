@@ -1,4 +1,12 @@
+/** Minesweeper map that handles all functionalities of each cell
+ * @class MinesweeperMap
+ * 
+ * @param {Number} width - Number of rows
+ * @param {Number} height - Number of columns
+ * @param {Number} numBombs - Number of mines
+ */
 class MinesweeperMap {
+    
     constructor(width, height, numBombs) {
         this.width = width;
         this.height = height;
@@ -11,8 +19,8 @@ class MinesweeperMap {
         this.stateMachine.addState("loose");
 
         this.animationHandler = new AnimationHandler();
-        this.animationHandler.addAnimation((
-            function shakeEffect({p, offset, frame, duration}) {
+        this.animationHandler.addAnimation(
+            (function shakeEffect({p, offset, frame, duration}) {
                 if (frame >= duration) {
                     this.animationHandler.stop();
                     return;
@@ -26,16 +34,16 @@ class MinesweeperMap {
                 frame++;
 
                 return {p, offset, frame, duration};
+            }).bind(this),
+            {
+                p: p5Handler.game.p,
+                offset: 3,
+                frame: 0,
+                duration: 10
             }
-        ).bind(this), {
-            p: p5Handler.game.p,
-            offset: 3,
-            frame: 0,
-            duration: 10
-        });
-
-        this.animationHandler.addAnimation((
-            function showBombsEffect({cells, p, count, delay}) {
+        );
+        this.animationHandler.addAnimation(
+            (function showBombsEffect({cells, p, count, delay}) {
                 count++;
                 if (count >= delay) {
                     if (cells.length == 0) {
@@ -53,14 +61,16 @@ class MinesweeperMap {
                 }
 
                 return {cells, p, count, delay};
-            }
-        ).bind(this));
+            }).bind(this)
+        );
     }
 
     reset() {
         this.grid = {};
         this.flagsLeft = this.numBombs;
         this.stateMachine.setState("inprocess");
+
+        this.generateGrid();
     }
 
     preload(p) {
@@ -78,10 +88,6 @@ class MinesweeperMap {
         if (this.checkWin()) {
             p5Handler.game.stateMachine.setState("win");
         }
-    }
-
-    setup() {
-        this.generateGrid();
     }
 
     draw(p) {
@@ -104,7 +110,9 @@ class MinesweeperMap {
         }
     }
 
+    /** Generate a grid, creates and updates cells. */
     generateGrid() {
+        // Generate cells
         for (var x = 0; x < this.width; x++) {
             for (var y = 0; y < this.height; y++) {
                 this.grid[`${x},${y}`] = new MinesweeperCell(x, y, this);
@@ -134,6 +142,7 @@ class MinesweeperMap {
         }
     }
 
+    /** Count all neighboring cells to position (x, y) that are bombs. */
     cntBombNeighbors(x, y) {
         var cnt = 0;
         for (var i = -1; i <= 1; i++) {
@@ -148,6 +157,9 @@ class MinesweeperMap {
         return cnt;
     }
 
+    /** Recursive function that reveals all cells that were 
+     * adjacent to a cell with value 0. 
+     */
     revealNeighbors(x, y, value = 0) {
         let destroyedFlags = 0;
 
@@ -197,7 +209,7 @@ class MinesweeperMap {
     }
 
     getCellOnPosition(x, y) {
-        let cellSize = $("#canvas").width() / this.width;
+        let cellSize = p5Handler.$container.width() / this.width;
 
         let cellX = Math.floor(x / cellSize);
         let cellY = Math.floor(y / cellSize);

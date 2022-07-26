@@ -3,18 +3,31 @@ class MinesweeperGame extends Game {
         super();
 
         this.stateMachine = new StateMachine('inprocess');
-        this.stateMachine.addTransition('loose' , this.looseState.bind(this), 'onEnter');
-        this.stateMachine.addTransition('win' , this.winState.bind(this), 'onEnter');
-        this.stateMachine.addTransition('inprocess' , this.inprocessState.bind(this), 'onUpdate');
-        this.stateMachine.addTransition(
-            'inprocess', 
-            (
-                function onMousePressed() {
-                    this.objectLayer.mousePressed(this.p);
-                }
-            ).bind(this), 
-            'onMousePressed'
-        );
+
+        this.stateMachine.addTransitions([
+            {
+                'state': 'loose', 
+                'callback': this.looseState.bind(this), 
+                'listener': 'onEnter'
+            },
+            {
+                'state': 'win', 
+                'callback': this.winState.bind(this), 
+                'listener': 'onEnter'
+            },
+            {
+                'state': 'inprocess', 
+                'callback': this.inprocessState.bind(this), 
+                'listener': 'onUpdate'
+            },
+            {
+                'state': 'inprocess',
+                'callback': (function onMousePressed() {
+                                this.objectLayer.mousePressed(this.p);
+                            }).bind(this), 
+                'listener': 'onMousePressed'
+            },
+        ])
     }
 
     async reset() {
@@ -26,7 +39,6 @@ class MinesweeperGame extends Game {
         this.bestScore = bestScore;
 
         this.objectLayer.reset();
-        this.objectLayer.setup();
     }
 
     init() {
@@ -47,6 +59,7 @@ class MinesweeperGame extends Game {
     async setup() {
         // Game setup
         await this.reset();
+        this.objectLayer.setup();
 
         this.p.createCanvas(
             this.$container.width(),
@@ -66,9 +79,11 @@ class MinesweeperGame extends Game {
             this.clock++;
         }
     }
+    
     looseState() {
         this.score = this.clock;
     }
+
     async winState() {
         this.score = this.clock;
 

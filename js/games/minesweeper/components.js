@@ -20,7 +20,8 @@ class MinesweeperHeader extends MinesweeperUI {
     constructor(container) {
         super(container);
 
-        this.preload();
+        this.flagIcon = chrome.runtime.getURL("img/flag_icon.png");
+        this.clockIcon = chrome.runtime.getURL("img/clock_icon.png");
 
         this.html = `
             <div class="canvas-header">
@@ -35,11 +36,6 @@ class MinesweeperHeader extends MinesweeperUI {
                 </div>
             </div>
         `;
-    }
-
-    preload() {
-        this.flagIcon = chrome.runtime.getURL("img/flag_icon.png");
-        this.clockIcon = chrome.runtime.getURL("img/clock_icon.png");
     }
 
     setup() {
@@ -120,9 +116,7 @@ class MinesweeperPopup extends MinesweeperUI {
         this._setState("win", p5Handler.game.score, p5Handler.game.bestScore);
     }
 
-    _setState(state = "loose", score = "---", bestScore = "---") {
-        console.log(score, bestScore);
-
+    _setState(state, score = "---", bestScore = "---") {
         $("#score").text(score);
         $("#best-score").text(bestScore);
         $("#result-img").attr('src', chrome.runtime.getURL(`img/${state}_screen.png`));

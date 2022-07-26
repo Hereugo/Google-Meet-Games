@@ -45,6 +45,18 @@ class StateMachine {
         this.transitions[state][listener][name] = {callback, args, initialArgs};
     }
 
+    addTransitions(transitions) {
+        // TODO: Find a better way to do this
+        for (let transition of transitions) {
+            this.addTransition(
+                transition.state, 
+                transition.callback, 
+                transition.listener, 
+                transition.args
+            );
+        }
+    }
+
     resetEvent(state, name, listener) {
         let event = this.transitions[state][listener][name];
 
