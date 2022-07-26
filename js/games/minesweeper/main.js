@@ -30,7 +30,7 @@ class MinesweeperGame extends Game {
     }
 
     init() {
-        this.objectLayer.addChild('map', new MinesweeperMap(14, 21, 30));
+        this.objectLayer.addChild('map', new MinesweeperMap(15, 21, 30));
         this.objectLayer.addChild('header', new MinesweeperHeader(this.$container));
         this.objectLayer.addChild('popup', new MinesweeperPopup(this.$container));
     }
@@ -68,9 +68,6 @@ class MinesweeperGame extends Game {
     }
     looseState() {
         this.score = this.clock;
-    
-        this.objectLayer.getChild('map').stateMachine.setState('loose');
-        this.objectLayer.getChild('popup').stateMachine.setState('loose');
     }
     async winState() {
         this.score = this.clock;

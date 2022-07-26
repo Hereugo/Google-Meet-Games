@@ -15,15 +15,15 @@
 					"js/libraries/jquery-3.6.0.min.js", 
 					"js/libraries/p5.min.js",
 				   
-					"js/util.js", "js/translations.js", "js/templates.js",
-				   	"js/cartridgeClass.js", "js/stationClass.js",
+					"js/src/util.js", "js/src/translations.js", "js/src/templates.js",
+				   	"js/src/cartridgeClass.js", "js/src/stationClass.js",
 				   
-					"js/games/StateMachine.js",
-					"js/games/AnimationHandler.js",
-					"js/games/ParticleSystem.js",
-					"js/games/GameLayers.js",
-					"js/games/P5Handler.js",
-					"js/games/Game.js",
+					"js/games/game_engine/StateMachine.js",
+					"js/games/game_engine/AnimationHandler.js",
+					"js/games/game_engine/ParticleSystem.js",
+					"js/games/game_engine/GameLayers.js",
+					"js/games/game_engine/P5Handler.js",
+					"js/games/game_engine/Game.js",
 
 					"js/games/minesweeper/components.js",
 				    "js/games/minesweeper/constants.js",
@@ -31,7 +31,7 @@
 					"js/games/minesweeper/map.js",
 					"js/games/minesweeper/main.js",
 
-				   "js/contentScript.js"
+				   "js/src/contentScript.js"
 			],
 			"css": ["css/pro.min.css", "css/main.css"]
 		}

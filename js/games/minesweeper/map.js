@@ -8,7 +8,7 @@ class MinesweeperMap {
         this.grid = {};
 
         this.stateMachine = new StateMachine("inprocess");
-        this.stateMachine.addTransition("loose", this.looseState.bind(this), "onEnter");
+        this.stateMachine.addState("loose");
 
         this.animationHandler = new AnimationHandler();
         this.animationHandler.addAnimation((
@@ -29,10 +29,32 @@ class MinesweeperMap {
             }
         ).bind(this), {
             p: p5Handler.game.p,
-            offset: 5,
+            offset: 3,
             frame: 0,
             duration: 10
         });
+
+        this.animationHandler.addAnimation((
+            function showBombsEffect({cells, p, count, delay}) {
+                count++;
+                if (count >= delay) {
+                    if (cells.length == 0) {
+                        this.animationHandler.stop();
+
+                        p5Handler.game.objectLayer.getChild('popup').stateMachine.setState('loose');
+                        return;
+                    }
+                    let cell = cells.pop();
+
+                    cell.setType("bomb");
+                    cell.particleSystem.start();
+
+                    count = 0;
+                }
+
+                return {cells, p, count, delay};
+            }
+        ).bind(this));
     }
 
     reset() {
@@ -51,19 +73,7 @@ class MinesweeperMap {
             return;
         }
 
-        // FIXME: Shake effect only when cell is not revealed. 
-        if (p.mouseButton == p.LEFT) {    
-            this.animationHandler.reset({
-                p: p5Handler.game.p,
-                offset: 5,
-                frame: 0,
-                duration: 10
-            });
-            this.animationHandler.start();
-        }
         cell.mousePressed(p);
-
-        console.log(this);
 
         if (this.checkWin()) {
             p5Handler.game.stateMachine.setState("win");
@@ -76,9 +86,9 @@ class MinesweeperMap {
 
     draw(p) {
         p.push();
-        
+    
         this.animationHandler.run();
-        
+    
         for (let coords in this.grid) {
             let cell = this.grid[coords];
             
@@ -92,7 +102,6 @@ class MinesweeperMap {
             
             cell.particleSystem.draw();
         }
-        
     }
 
     generateGrid() {
@@ -196,6 +205,17 @@ class MinesweeperMap {
         return this.getCell(cellX, cellY);
     }
 
+    getBombCells() {
+        let bombCells = [];
+        for (let coords in this.grid) {
+            let cell = this.grid[coords];
+            if (cell.isBomb) {
+                bombCells.push(cell);
+            }
+        }
+        return bombCells;
+    }
+
     getWidth() {
         return this.width;
     }
@@ -221,15 +241,5 @@ class MinesweeperMap {
             }
         }
         return true;
-    }
-
-    looseState() {
-        for (let coords in this.grid) {
-            let cell = this.grid[coords];
-
-            if (cell.isBomb) {
-                cell.setType("bomb");
-            }
-        }
     }
 }

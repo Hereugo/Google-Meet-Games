@@ -37,14 +37,18 @@ class StateMachine {
     
     addTransition(state, callback, listener, args) {
         args = args || {};
-
+        let initialArgs = args;
+    
         this.addState(state);
 
         const name = callback.name.replace(/^bound /, "");
-        this.transitions[state][listener][name] = {
-            callback,
-            args
-        };
+        this.transitions[state][listener][name] = {callback, args, initialArgs};
+    }
+
+    resetEvent(state, name, listener) {
+        let event = this.transitions[state][listener][name];
+
+        this.updateEvent(state, name, listener, {'args': event.initialArgs});
     }
 
     updateEvent(state, name, listener, {callback, args}) {
@@ -52,7 +56,8 @@ class StateMachine {
 
         this.transitions[state][listener][name] = {
             "callback": callback || event.callback,
-            "args": args || event.args
+            "args": args || event.args,
+            "initialArgs": event.initialArgs
         }
     }
 
@@ -69,25 +74,24 @@ class StateMachine {
         }
     }
 
-    dispatchOnEnterEvents() {
-        for (let event in this.transitions[this.state]["onEnter"]) {
-            this._dispatch(event, "onEnter");
+    _dispatchEvents(listener, events) {
+        events = events || Object.keys(this.transitions[this.state][listener]);
+        for (let event of events) {
+            this._dispatch(event, listener);
         }
+    } 
+
+    dispatchOnEnterEvents(events) {
+        this._dispatchEvents("onEnter", events);
     }
-    dispatchOnMousePressedEvents() {
-        for (let event in this.transitions[this.state]["onMousePressed"]) {
-            this._dispatch(event, "onMousePressed");
-        }
+    dispatchOnMousePressedEvents(events) {
+        this._dispatchEvents("onMousePressed", events);
     }
-    dispatchOnExitEvents() {
-        for (let event in this.transitions[this.state]["onExit"]) {
-            this._dispatch(event, "onExit");
-        }
+    dispatchOnExitEvents(events) {
+        this._dispatchEvents("onExit", events);
     }
-    dispatchOnUpdateEvents() {
-        for (let event in this.transitions[this.state]["onUpdate"]) {
-            this._dispatch(event, "onUpdate");
-        }
+    dispatchOnUpdateEvents(events) {
+        this._dispatchEvents("onUpdate", events);
     }
 }
 

@@ -1,5 +1,7 @@
 class MinesweeperCell {
     constructor(x, y, gridRef) {
+        this.id = `${x}-${y}`;
+
         this.x = x;
         this.y = y;
 
@@ -19,7 +21,7 @@ class MinesweeperCell {
             this.y * this.cellSize, 
             this.cellSize,
             this.bgColor[(this.x + this.y) % 2],
-            1
+            2
         );
     }
 
@@ -28,6 +30,20 @@ class MinesweeperCell {
         if (p.mouseButton == p.LEFT) {
             if (this.isBomb) {
                 p5Handler.game.stateMachine.setState("loose");
+
+                // Reveal unflagged bombs in random order but have the bomb that was clicked first, explode first.
+                let cells = p.shuffle(this.gridRef.getBombCells()).filter(cell => {
+                    return (cell.id != this.id && !cell.isFlagged);
+                });
+                cells.push(this);
+
+                this.gridRef.animationHandler.updateArgs("showBombsEffect", {
+                    cells: cells,
+                    p: p,
+                    count: 0,
+                    delay: 10,
+                })
+                this.gridRef.animationHandler.start(["showBombsEffect"]);
                 return;
             }
 
@@ -37,6 +53,9 @@ class MinesweeperCell {
 
                 // If cell value is 0 reveal neighboring cells
                 if (this.value == 0) {
+                    this.gridRef.animationHandler.reset("shakeEffect");
+                    this.gridRef.animationHandler.start(["shakeEffect"]);
+
                     let destroyedFlags = this.gridRef.revealNeighbors(this.x, this.y);
                     
                     this.gridRef.setFlagsLeft(this.gridRef.flagsLeft + destroyedFlags);
@@ -69,8 +88,6 @@ class MinesweeperCell {
 
         p.fill(this.bgColor[oddEven]);
 
-        //TODO: Draw cell border when its unrevealed.
-        // Border color: #87af3a
         p.noStroke();
 
         let mouseCell = this.gridRef.getCellOnPosition(p.mouseX, p.mouseY);
@@ -84,6 +101,35 @@ class MinesweeperCell {
             this.cellSize,
             this.cellSize
         );
+
+        // Draw cell border when its unrevealed.
+        for (let i = 0; i <= 1; i++) {
+            for (let j = 0; j <= 1; j++) {
+                if (i == j) continue;
+                let neighborCell = this.gridRef.getCell(this.x + i, this.y + j);
+
+                if (!neighborCell.exists) continue;
+
+                if ((neighborCell.type == "revealed" || this.type == "revealed") && 
+                    (neighborCell.type != this.type)) {
+                    let offset = 1;
+
+                    p.stroke("#87af3a");
+                    p.strokeCap(p.SQUARE);
+                    p.strokeWeight(4);
+                    
+                    p.line(
+                        neighborCell.x * this.cellSize,
+                        neighborCell.y * this.cellSize,
+                        (this.x + 1) * this.cellSize + offset * j,
+                        (this.y + 1) * this.cellSize + offset * i
+                    );
+                }
+            }
+       }
+       
+
+       p.noStroke();
 
         if (this.isFlagged) {
             p.image(

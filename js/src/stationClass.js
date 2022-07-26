@@ -13,6 +13,7 @@ class Station {
         return this.cartridges.find(cartridge => cartridge.id === id);
     }
 
+    //FIXME: This works only sometimes. This should activate only when the user clicks on the button.
     setup() {
         // Set an observer on the container
         const observer = new MutationObserver(this.injectHTML.bind(this));
